@@ -1,0 +1,429 @@
+Launch an EC2 Instance OS will be ubuntu in it 
+
+If we want to build docker containers, run 
+
+before installation of docker engine we have to update the machine 
+
+CMD > sudo apt-get update -y  (packages latest versions will get installed)
+
+
+INSTALLATION OF DOCKER 
+
+CMD > sudo apt-get install docker.io -y
+
+what will get install by this CMD = docker engine install hoga, container d, docker d, docker cli install hoga ek hi CMD mein
+
+CHECK DOCKER STATUS AFTER INSTALL
+
+CMD > systemctl status docker 
+
+
+HOW MUCH DOCKER CONTAINER RUNNING 
+CMD > docker ps
+
+our user does not have file permission to run docker cmd so we will check group
+
+group check
+CMD > cat /etc/group
+docker:x:122: ( new group will be get created after using docker cmd)
+
+if we put our user in docker grp we will have permission of docker cmd to file than our user will be ubuntu)
+
+we are adding our ubuntu user in docker grp 
+i.e > USER will be > ubuntu 
+
+      group will be > docker:x:122
+
+
+Now we are adding ubuntu user to docker group by below mentioned CMD 
+
+
+CMD > sudo usermod -aG docker $USER
+
+by this CMD ubuntu is added in docker grp > docker:x:122:ubuntu
+
+CMD > sudo reboot (If user is not getting added in docker grp)
+
+
+
+Now if we use docker ps command there will be no permission error because we have added user in docker file 
+
+Docker container running command 
+ CMD > docker ps 
+
+ CMD > docker ps -a    (to see inactive or dead container we use this command)
+
+
+for making container we already have our image in docker image i.e mysql 
+
+what version we want of docker we can put it through
+ 
+ CMD > mysql:5.7
+
+we are telling docker to run this Image which is mysql:5.7
+so our command will be 
+
+ CMD > docker run mysql:5.7  [by docker image we are creating docker container we are downloading docker image of mysql]
+
+ by running this command we will get an error 
+
+    - MYSQL_ROOT_PASSWORD
+    - MYSQL_ALLOW_EMPTY_PASSWORD
+    - MYSQL_RANDOM_ROOT_PASSWORD
+
+that means we have to put MYSQL_ROOT_PASSWORD in command itself 
+
+ CMD > docker run -e MYSQL_ROOT_PASSWORD=test@123 mysql:5.7
+
+Reconnect the instance after this command 
+
+ CMD > docker ps 
+
+This will show up 
+ docker ps
+CONTAINER ID   IMAGE       COMMAND                  CREATED          STATUS          PORTS                 NAMES
+96aa85297d03   mysql:5.7   "docker-entrypoint.s…"   18 minutes ago   Up 18 minutes   3306/tcp, 33060/tcp   fervent_darwin
+
+CMD > docker exec -it dd3c847e57d7 bash
+
+CMD > ls
+
+CMD > mysql -u root -p
+
+Password > test@123
+
+Now we are in mysql server
+mysql> show databases;
+
+CMD > exit (when we want to exit from the mysql database)
+
+CMD > exit (insert exit command once again so we can get log out from the conatiner which was created for mysql) 
+
+docker file > docker image > docker container 
+
+
+CMD > mkdir docker-project 
+
+inside docker-project > java-app 
+path
+/docker-project/java-app
+
+
+
+FILE 
+
+create file in java-app
+
+file name > Hello.java 
+
+change the file permission 
+
+CMD > chmod 755 Hello.java
+
+CONTENT IN HELLO.JAVA APP   
+
+import java.util.*;
+
+public class Hello {
+    public static void main(String[] args) {
+        System.out.println("Hello Dosto");
+        Date currentDate = new Date();
+        System.out.println("Today's date is: " + currentDate);
+    }
+}
+
+
+we have to run Hello.java app 
+now we are telling docker to prepare a container and make it ready to deploy a java app and install all dependancy and packages 
+
+docker already having preinstalled base-image in which linux and openJDK,cdoe of Hello.java file, javacHello.java compile wali command, Hello.java file 
+
+
+
+IMAGE
+
+image banti h file se 
+so we are making Dockerfile now 
+
+CMD > vim Dockerfile 
+
+docker file has some syntax it as same like .sh shell file 
+
+for getting base-image visit dockerhub > Docker Hub Container Image Library | App Containerization
+
+content in Dockerfile 
+
+
+# Get a base image with JDK installed docker
+
+FROM openjdk:11
+
+#create a working directory to compile,run java apps
+WORKDIR /app
+
+# copy code from local machine to docker container
+COPY Hello.java .
+
+#compile the code
+RUN javac Hello.java
+
+#RUN the java app
+CMD ["java","Hello"]
+
+
+for referce in which directory we are working in
+
+ubuntu@ip-172-31-14-131:~/docker-project/java-app$ ls
+Dockerfile  Hello.java
+
+
+Docker file se docker image banegi ussi se container banega docker ka 
+its like docker-file > docker-image > docker-container 
+
+so now we are tagging the image by -t
+dockerfile to dockerimage 
+
+CMD > docker build -t java-app:latest .   (-t define tagging the image and . represent file location)
+
+
+it will show up like this after this CMD 
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  12.29kB
+Step 1/5 : FROM openjdk:11
+ ---> 47a932d998b7
+Step 2/5 : WORKDIR /app
+ ---> Using cache
+ ---> 1877313fe72a
+Step 3/5 : COPY Hello.java .
+ ---> f0c1cac09bd0
+Step 4/5 : RUN javac Hello.java
+ ---> Running in d68848cb6514
+Removing intermediate container d68848cb6514
+ ---> bff8ca695c6b
+Step 5/5 : CMD ["java","Hello"]
+ ---> Running in 4a85069d7bc1
+Removing intermediate container 4a85069d7bc1
+ ---> 267a1cdb4866
+Successfully built 267a1cdb4866
+Successfully tagged java-app:latest
+ubuntu@ip-172-31-14-131:~/docker-project/java-app$ vim Hello.java
+
+
+so now we have tagged the image 
+i.e java-app:latest
+
+To check weather the image is created or not 
+To check the Docker-Image 
+
+CMD > docker images 
+
+This will show-up
+ubuntu@ip-172-31-14-131:~/docker-project/java-app$ ^C
+ubuntu@ip-172-31-14-131:~/docker-project/java-app$ docker images
+REPOSITORY   TAG       IMAGE ID       CREATED          SIZE
+java-app     latest    267a1cdb4866   11 minutes ago   654MB
+<none>       <none>    e6553fa02c4e   16 minutes ago   654MB
+<none>       <none>    4c792687ea83   18 minutes ago   654MB
+<none>       <none>    35f31ccaf7c0   23 minutes ago   654MB
+mysql        5.7       5107333e08a8   2 months ago     501MB
+openjdk      11        47a932d998b7   19 months ago    654MB
+
+
+CONTAINER
+Now we will make or prepare container from image 
+
+CMD > docker run java-app:latest
+
+AFter command this will show up 
+Hello Dosto
+Today's date is: Mon Mar 04 07:34:44 UTC 2024
+
+Docker fundamentals Target which is set by shubham
+we will run all this in docker-container
+1. JAVA APP
+2. FLASH APP
+3. Node-js APP
+
+
+
+
+FLASK APP-DEPLOY
+
+Deploying flask Application through docker 
+CMD > mkdir flask-app
+
+In flask-app directory we will use this command 
+CMD > git clone https://github.com/LondheShubham153/flask-app-ecs.git
+
+
+FILE
+vim app.py
+
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/')
+def hello_world():
+    return 'Hey, welcome to DevOps Zero To Hero'
+
+@app.route('/health')
+def health():
+    return 'Server is up and running'
+
+
+IMAGE
+CMD > vim Docker file
+content 
+
+# Get base image with python 3.9.18
+FROM python:3.9
+
+#create a working directory to compile,run python apps
+WORKDIR /app
+
+# copy code from local machine work directory in Docker container
+COPY . .
+
+# Run the python app [Install all the required dependencies]
+RUN pip install -r requirements.txt
+
+#RUN the python app
+CMD  ["python","run.py"]
+
+python app run on port 80 inside the container 
+as we know this by run.py file 
+from app import app
+app.run(debug=True, host='0.0.0.0', port=80)
+
+python run.py app runs on port 80 if we want to use python application outside the Docker-container so we have to publish the PORT
+
+Docker file se docker image banegi ussi se container banega docker ka 
+its like docker-file > docker-image > docker-container 
+
+so now we are tagging the image by -t
+dockerfile to dockerimage 
+
+CMD > docker build -t flask-app:latest .   (-t define tagging the image and . represent file location)
+
+
+To check weather the image is created or not 
+To check the Docker-Image 
+
+CMD > docker images 
+
+
+CONTAINER
+Now we will make or prepare container from image 
+
+if our system and container port number is different than we use below CMD in which we mention python app port number 
+if we want to map container port in which application of python run at port 80 we use below cmd 
+
+CMD > docker run -p 80:80 flask-app:latest     [-p stands for publish and we are binding local machine port with container port i.e > 80:80]
+
+we get this error :
+Traceback (most recent call last):
+  File "/app/run.py", line 1, in <module>
+    from app import app
+  File "/app/app.py", line 1, in <module>
+    from flask import Flask
+  File "/usr/local/lib/python3.9/site-packages/flask/__init__.py", line 5, in <module>
+    from .app import Flask as Flask
+  File "/usr/local/lib/python3.9/site-packages/flask/app.py", line 30, in <module>
+    from werkzeug.urls import url_quote
+ImportError: cannot import name 'url_quote' from 'werkzeug.urls' (/usr/local/lib/python3.9/site-packages/werkzeug/urls.py)
+
+To resolve this issue we remove flask version from flask
+by CMD > vim requirements.txt
+
+vim requirements.txt file content should be 
+content > flask
+
+we have to build docker image again to overcome flask-application error 
+
+CMD > docker build -t flask-app:latest .       (for docker image)
+CMD > docker run -p 80:80 flask-app:latest     [-p stands for publish and we are binding local machine port with container port i.e > 80:80]
+
+To check weather the image is created or not 
+To check the Docker-Image 
+
+CMD > docker images 
+
+Docker container start 
+CMD > docker start ffc5d79c4c7c
+
+when we want to run application to run only in its directory in container 
+CMD > docker exec -it ffc5d79c4c7c bash
+
+
+
+
+NODE-JS APP-DEPLOY
+ 
+Deploying flask Application through docker 
+CMD > mkdir node-app
+
+In flask-app directory we will use this command 
+CMD > git clone https://github.com/LondheShubham153/node-todo-cicd.git
+
+CMD > cat README.md 
+content inside README.md file 
+# node-todo-cicd
+
+Run these commands:
+
+
+`sudo apt install nodejs`
+
+
+`sudo apt install npm`
+
+
+`npm install`
+
+`node app.js`
+
+or Run by docker compose
+
+test
+
+
+
+
+
+IMAGE
+CMD > vim Docker file
+content 
+
+FROM node:14
+
+WORKDIR /app
+
+COPY . .
+
+RUN npm install
+
+#All my test cases are passing
+RUN npm run test
+
+EXPOSE 8000
+
+CMD ["node","app.js"]
+
+
+#All my test cases are passing
+RUN npm run test
+
+
+so now we are tagging the image by -t
+dockerfile to dockerimage 
+
+CMD > docker build -t node-app:latest .   (-t define tagging the image and . represent file location)
+
+
+Run the Docker image 
+
+by this we are running node-app latest version
+CMD > docker run -d -p 8000:8000 node-app:latest         (we are mapping docker as well as container id)
