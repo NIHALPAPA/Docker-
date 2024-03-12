@@ -1,0 +1,247 @@
+M-Prashant
+
+Docker installation on MAC, Windows & linux 
+
+Creating Demo project on Node and python 
+
+creating Docker file 
+
+creating docker images 
+
+Running containers 
+
+predefined images 
+
+Docker Hub
+
+Docker volumes and Network 
+
+Docker Compose 
+
+
+Docker installation process on windows > 
+First we have to install the Docker 
+Docker install search on google & install Docker engine
+
+we can check docker version through command promt or terminal 
+
+CMD > docker --version
+
+Launch an EC-2 Instance in ubuntu OS   (Majorly red-hat|OS is widely use in organization)
+
+CMD > lscpu | more
+
+If we want to build docker containers, run 
+
+before installation of docker engine we have to update the machine 
+
+CMD > sudo apt-get update -y  (packages latest versions will get installed)
+
+
+INSTALLATION OF DOCKER 
+
+CMD > sudo apt-get install docker.io -y
+
+what will get install by this CMD = docker engine install hoga, container d, docker d, docker cli install hoga ek hi CMD mein
+
+CHECK DOCKER STATUS AFTER INSTALL
+
+CMD > sudo systemctl start docker.service
+CMD > sudo systemctl status docker 
+CMD > docker ps 
+
+
+Now we have create a Webapp Demo|sample Project
+
+now install node.js from internet for windows 
+
+AFter installation open visual-studio code editor 
+
+CMD > node --version
+
+CMD > npx create-react-app testapp
+
+CD path > :\Users\Admin\AppData\Roaming\testapp
+
+CMD > npm start
+by this CMD react webpage will load on localhost:3000
+
+
+Step : open folder destination in visual-studio
+
+Step : delete modules file form testapp folder 
+
+now CMD > npm start will now work because we have deleted a folder of testapp
+
+CMD > npm install (Now we can observe node_modules folder will re-appear)
+
+CMD > npm start 
+by this CMD react webpage will load on localhost:3000
+
+
+
+
+DOCKER-FILE
+Creating docker file 
+create docker file in visual-studio and download docker extension
+
+START	
+we are starting from selecting the base docker-image 
+INNER FILE CONTENT > FROM node:20     (here node defines the image of docker and 20 defines the version)
+
+The container where we want to run our Application of react 
+so we are making folder to run application in it 
+that will be WORKDIR in which we have created the folder MY-APP
+INNER FILE CONTENT > WORKDIR /MY-APP
+
+After creating folder we are copying the coding file in MY-APP
+INNER FILE CONTENT > COPY . .        (copy all the folder content of Testapp in WORKDIR
+
+Now we have to RUN the copied file in MY-APP
+INNER FILE CONTENT > RUN npm install
+
+Expose port number 
+INNER FILE CONTENT > EXPOSE 3000
+
+INNER FILE CONTENT > CMD ["npm","start"]
+
+NOte: save the above file 
+
+
+content will be like this in file
+
+FROM node:20
+
+WORKDIR /MY-APP
+
+COPY . .
+
+RUN npm install 
+
+EXPOSE 3000 
+
+CMD ["npm","start"]
+
+
+
+DOCKER-IMAGE
+Docker file se docker image banegi ussi se container banega docker ka 
+its like docker-file > docker-image > docker-container 
+
+building docker 
+dockerfile to dockerimage 
+CMD > docker build .         (. represent file location)
+
+
+so now we are tagging the image by -t
+dockerfile to dockerimage 
+
+CMD > docker build -t mywebapp:02 .     (-t define tagging the image and . represent file location)
+
+
+
+To list docker images 
+CMD > docker image ls
+
+Run & manage docker images | docker containers
+docker run (image-id)
+CMD > docker run 29c3f3178272
+
+open another CMD prompt
+CMD > docker ps
+
+stop the running container  (we are stopping the container because we want to access application on browser now)
+CMD > docker stop dazzling_poincare
+
+so we have stopped docker running container now 
+
+CMD > docker image ls
+
+Run the Docker image 
+
+by this we are running node-app latest version
+CMD > docker run -d -p 3000:3000 29c3f3178272      (we are mapping docker as well as container id)
+
+
+CONTAINER MANAGEMENT
+
+CMD > docker ps      (it will show the running container)
+CMD > docker ps -a   (it will show up running and dead container)
+CMD > docker rm container-name  (To remove container)
+
+
+Terminate the image after stopping command 
+CMD > docker run -d --rm -p 3000:3000 29c3f3178272
+
+
+Giving name to the container 
+here we are using container ID:
+CMD > docker run -d --name "DAVID" -p 3000:3000 29c3f3178272 
+
+here we are using container name:
+CMD > docker run -d --name "mywebapp" -p 3000:3000 mywebapp:02   (dont forget to add up the version in mywebapp:02  i.e :02)
+
+Name the docker image while building docker-image 
+
+CMD > docker build -t mywebapp:01 .      (01 is the version tag in that image)
+
+
+REMOVE DOCKER-IMAGE CMD 
+
+CMD > docker rmi mywebapp:01
+
+
+REMOVE DOCKER CONTAINER FORCEFULLY
+
+CMD > docker rm -f stoic_brown  (instead of stoic_brown we can use container id or name in it)
+
+
+
+
+DOCKER ADV by - Prashant M
+
+Now we are pulling the python image 
+
+CMD > docker pull python    (if we do not mention the python version than it will prefer the latest version of python which is available on Docker-hub)
+
+(we mention the specific version for python by collan : )
+
+check installed images by this CMD 
+CMD > docker image ls -a
+
+Now we are installing web-server 
+
+CMD > docker pull nginx  (latest version of nginx will be preferred here)
+
+Now we can observe docker has installed nginx latest image 
+
+
+
+
+PUSH DOCKER-IMAGES FROM DOCKER ID
+CMD > docker login   (login with your docker id)
+
+CMD > docker build -t papanihal360/docker:01 .
+
+CMD > docker push papanihal360/docker:01 
+
+
+CHANGE DOCKER IMAGE NAME WITH EXISTING IMAGE
+
+CMD > docker tag mywebapp:01 papanihal360/docker:02
+
+
+
+DOCKER LOGIN
+
+ID :   docker login -u papanihal360
+
+PASS :   dckr_pat_gRKN-050es36tIMptRO2XMVhZqw
+
+
+PULL DOCKER-IMAGES FROM DOCKER ID
+
+CMD > docker pull papanihal360/docker:02
+
+RUN CMD in EC-2 instance
+docker run -p 3000:3000 papanihal360/docker:02
